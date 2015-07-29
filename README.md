@@ -1,3 +1,4 @@
+# Swiss Tournament System
 This project is a tournament system based on the Swiss Pairing method. The Swiss Pairing method pairs players in each round that are equally (same number of wins) or nearly equal (closest number of wins) to each other. Each player in the each match is assigned the following points:
   - 3 points for a win
   - 1 point for a draw
