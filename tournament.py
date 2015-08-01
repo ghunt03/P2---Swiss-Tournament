@@ -83,13 +83,15 @@ def playerStandings():
         name: the player's full name (as registered)
         wins: the number of matches the player has won
         matches: the number of matches the player has played
+        draws: the number of draws
+        omw: the sum of Opponent Match Wins
     """
     conn = connect()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM player_standings")
     standings = []
     for row in cursor.fetchall():
-        standings.append((row[0], str(row[1]), row[2], row[3]))
+        standings.append((row[0], str(row[1]), row[2], row[3], row[4], row[5]))
     conn.close()
     return standings
 

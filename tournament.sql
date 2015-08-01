@@ -61,6 +61,12 @@ CREATE VIEW player_standings AS (
                   player_two_points = 3 AND player_two_id = players.id
             )
         )::int as wins,
+      (   SELECT count(id) 
+            FROM tournament_matches 
+            WHERE (
+                player_one_id = players.id OR player_two_id = players.id
+            )
+        )::int as matches,
         (   SELECT count(id) 
             FROM tournament_matches 
             WHERE (
@@ -70,12 +76,7 @@ CREATE VIEW player_standings AS (
                   player_two_points = 1 AND player_two_id = players.id
             )
         )::int as draws,
-        (   SELECT count(id) 
-            FROM tournament_matches 
-            WHERE (
-                player_one_id = players.id OR player_two_id = players.id
-            )
-        )::int as matches,
+  
         getOMWPoints(players.id)::int as OMW
     FROM players
     ORDER BY wins DESC, OMW DESC
