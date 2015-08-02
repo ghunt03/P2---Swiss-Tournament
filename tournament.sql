@@ -5,11 +5,10 @@
 --
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
+DROP DATABASE IF EXISTS tournament;
 
-CREATE DATABASE IF EXISTS tournament;
+CREATE DATABASE tournament;
 \c tournament;
-
-
 
 CREATE TABLE players (
     id SERIAL,
@@ -26,7 +25,7 @@ CREATE TABLE tournament_matches (
     PRIMARY KEY (id)
 );
 
-
+-- Function to calculate the Opponent Match Win Points. Used by the player standings function
 CREATE OR REPLACE FUNCTION getOMWPoints(player_id int) returns NUMERIC as $$ 
     DECLARE opponents INT[];
     DECLARE p1Points NUMERIC;
