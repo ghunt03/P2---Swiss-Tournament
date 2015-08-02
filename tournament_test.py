@@ -79,7 +79,7 @@ def testStandingsBeforeMatches():
         raise ValueError("Registered players' names should appear in "
                          "standings, even if they have no matches played.")
     print "6. Newly registered players appear in the standings with no \
-        matches."
+    matches."
 
 
 def testReportMatches():

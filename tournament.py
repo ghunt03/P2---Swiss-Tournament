@@ -9,49 +9,54 @@ import random
 byes = []
 
 
-def connect():
+def connect(database_name="tournament"):
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=tournament")
+    try:
+        db = psycopg2.connect("dbname={}".format(database_name))
+        cursor = db.cursor()
+        return db, cursor
+    except:
+        print("Unable to connect to database")
 
 
 def deleteMatches():
     """Remove all the match records from the database."""
     byes = []
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM tournament_matches")
-    conn.commit()
-    conn.close()
+    db, cursor = connect()
+    query = "DELETE FROM tournament_matches;"
+    cursor.execute(query)
+    db.commit()
+    db.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM players")
-    conn.commit()
-    conn.close()
+    db, cursor = connect()
+    query = "DELETE FROM players;"
+    cursor.execute(query)
+    db.commit()
+    db.close()
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM players")
+    db, cursor = connect()
+    query = "SELECT COUNT(*) FROM players;"
+    cursor.execute(query)
     results = cursor.fetchone()
+    db.close()
     player_count = results[0]
-    conn.close()
     return player_count
 
 
 def getPlayers():
     """Returns a list of player names."""
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM players")
+    db, cursor = connect()
+    query = "SELECT * FROM players;"
+    cursor.execute(query)
     results = cursor.fetchall()
     rows = ({'player_name': str(row[1])} for row in results)
-    conn.close()
+    db.close()
     return rows
 
 
@@ -64,11 +69,12 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO players (player_name) VALUES (%s)", (name, ))
-    conn.commit()
-    conn.close()
+    db, cursor = connect()
+    query = "INSERT INTO players (player_name) VALUES (%s);"
+    parameter = (name,)
+    cursor.execute(query, parameter)
+    db.commit()
+    db.close()
 
 
 def playerStandings():
@@ -86,13 +92,13 @@ def playerStandings():
         draws: the number of draws
         omw: the sum of Opponent Match Wins
     """
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM player_standings")
     standings = []
+    db, cursor = connect()
+    query = "SELECT * FROM player_standings;"
+    cursor.execute(query)
     for row in cursor.fetchall():
         standings.append((row[0], str(row[1]), row[2], row[3], row[4], row[5]))
-    conn.close()
+    db.close()
     return standings
 
 
@@ -106,15 +112,14 @@ def reportMatch(p_one_id, p_one_points, p_two_id, p_two_points):
       p_two_points:  the points won by player two
     """
 
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO tournament_matches \
+    db, cursor = connect()
+    query = "INSERT INTO tournament_matches \
         (player_one_id, player_one_points, player_two_id, \
-        player_two_points) VALUES (%s, %s, %s, %s) ",
-        (p_one_id, p_one_points, p_two_id, p_two_points, ))
-    conn.commit()
-    conn.close()
+        player_two_points) VALUES (%s, %s, %s, %s) "
+    parameters = (p_one_id, p_one_points, p_two_id, p_two_points, )
+    cursor.execute(query, parameters)
+    db.commit()
+    db.close()
 
 
 def tournamentRounds():
@@ -137,13 +142,11 @@ def tournamentWinner():
     Returns:
         winner_statement: a formatted string providing details on the winner
     """
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * \
-            FROM player_standings \
-            LIMIT 1")
+    db, cursor = connect()
+    query = "SELECT * FROM player_standings LIMIT 1;"
+    cursor.execute(query)
     winner = cursor.fetchone()
-    conn.close()
+    db.close()
     winner_statement = '''
         The winner of this tournament is {player_name}.
         With {wins} wins, {draws} draws and {omw} opponent match wins
@@ -156,6 +159,7 @@ def tournamentWinner():
         matches=str(winner[4]),
         omw=str(winner[5])
     )
+    db.close()
 
 
 def swissPairings():
